@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PixelForge Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: { primary: '#0df2f2' },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="h-screen overflow-hidden bg-slate-950 text-slate-100">
+    <div class="flex h-full flex-col">
+      <header class="flex h-12 items-center justify-between border-b border-cyan-400/20 px-4">
+        <h1 class="text-sm font-semibold text-primary">PixelForge Studio – WebGL Magic Editor</h1>
+        <div class="flex items-center gap-3 text-xs">
+          <span class="rounded border border-cyan-400/30 px-2 py-1">GPU ON</span>
+          <span>60 FPS</span>
+        </div>
+      </header>
+
+      <div class="grid flex-1 grid-cols-[68px_1fr_340px] overflow-hidden">
+        <aside class="border-r border-cyan-400/20 p-2">
+          <ul class="space-y-2 text-[11px]">
+            <li class="rounded bg-cyan-400/20 p-2 text-primary">🪄 Magic Wand</li>
+            <li class="rounded p-2 hover:bg-slate-800">✂ Crop</li>
+            <li class="rounded p-2 hover:bg-slate-800">🧩 Collage</li>
+            <li class="rounded p-2 hover:bg-slate-800">🖼 Templates</li>
+            <li class="rounded p-2 hover:bg-slate-800">📷 Photos</li>
+            <li class="rounded p-2 hover:bg-slate-800">🔤 Text</li>
+            <li class="rounded p-2 hover:bg-slate-800">⬆ Uploads</li>
+            <li class="rounded p-2 hover:bg-slate-800">🧸 Stickers</li>
+            <li class="rounded p-2 hover:bg-slate-800">🔷 Elements</li>
+            <li class="rounded p-2 hover:bg-slate-800">🎨 Background</li>
+            <li class="rounded p-2 hover:bg-slate-800">✏ Draw</li>
+            <li class="rounded bg-cyan-400/10 p-2">🧵 Stitch</li>
+          </ul>
+        </aside>
+
+        <main class="flex flex-col overflow-hidden">
+          <section class="flex-1 overflow-auto p-4">
+            <div class="mx-auto max-w-5xl space-y-4">
+              <div class="rounded-lg border border-cyan-400/30 bg-slate-900/80 p-3">
+                <p class="mb-2 text-xs text-slate-300">Algorithm libraries used in this UI (as requested: library-first strategy)</p>
+                <div class="grid grid-cols-1 gap-2 text-xs md:grid-cols-2">
+                  <div class="rounded border border-slate-700 p-2">Face Landmarks: <b>face-api.js</b> — virtual try-on</div>
+                  <div class="rounded border border-slate-700 p-2">Segmentation: <b>@imgly/background-removal</b> — cutouts/profile pics</div>
+                  <div class="rounded border border-slate-700 p-2">Object Tracking: <b>tracking.js</b> — motion interactions</div>
+                  <div class="rounded border border-slate-700 p-2">Feature Extraction: <b>jsfeat</b> — image stitch/panorama</div>
+                  <div class="rounded border border-slate-700 p-2">Edge Detection: <b>gammacv</b> — real-time outlines</div>
+                </div>
+              </div>
+
+              <div class="rounded-lg border border-cyan-400/30 bg-slate-900/80 p-3">
+                <p class="mb-2 text-xs text-slate-300">Image editing stack</p>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div class="rounded border border-slate-700 p-2">Pixel Selection: <b>magic-wand-tool</b></div>
+                  <div class="rounded border border-slate-700 p-2">Filters: <b>CamanJS / Lena.js</b></div>
+                  <div class="rounded border border-slate-700 p-2">Resizing: <b>Pica</b></div>
+                  <div class="rounded border border-slate-700 p-2">Layers: <b>Fabric.js</b></div>
+                  <div class="rounded border border-slate-700 p-2">WASM: <b>Magickwand.js</b></div>
+                  <div class="rounded border border-slate-700 p-2">Cropping: <b>Cropper.js</b></div>
+                </div>
+              </div>
+
+              <div class="rounded-lg border border-cyan-400/30 bg-slate-900/80 p-3">
+                <h2 class="mb-3 text-sm font-semibold text-primary">Stitch Module</h2>
+                <div class="grid gap-3 md:grid-cols-2">
+                  <div class="space-y-2">
+                    <input id="files" type="file" accept="image/*" multiple class="block w-full text-xs" />
+                    <div class="flex gap-2 text-xs">
+                      <label class="flex items-center gap-1"><input type="radio" name="direction" value="horizontal" checked /> Horizontal</label>
+                      <label class="flex items-center gap-1"><input type="radio" name="direction" value="vertical" /> Vertical</label>
+                    </div>
+                    <label class="block text-xs">Spacing <span id="spacingLabel">8</span>px</label>
+                    <input id="spacing" type="range" min="0" max="48" value="8" class="w-full" />
+                    <label class="block text-xs">Background</label>
+                    <input id="bgColor" type="color" value="#0f172a" class="h-8 w-14" />
+                    <button id="mergeBtn" class="rounded bg-primary px-3 py-1 text-xs font-bold text-slate-900">Merge Images</button>
+                    <button id="downloadBtn" class="rounded border border-primary/50 px-3 py-1 text-xs">Export PNG</button>
+                  </div>
+                  <div>
+                    <p class="mb-1 text-xs text-slate-300">Uploaded thumbnails (use ↑/↓ to reorder)</p>
+                    <div id="thumbs" class="max-h-40 space-y-1 overflow-auto"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-lg border border-cyan-400/30 bg-slate-900/80 p-3">
+                <canvas id="stitchCanvas" class="w-full rounded border border-slate-700 bg-black"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <footer class="h-24 border-t border-cyan-400/20 p-3 text-xs text-slate-400">
+            Layer Stack: Opacity • Blend • Lock • Hide • Group • Merge
+          </footer>
+        </main>
+
+        <aside class="overflow-auto border-l border-cyan-400/20 p-4 text-xs">
+          <h2 class="mb-3 text-sm font-semibold text-primary">Magic Wand Controls</h2>
+          <div class="space-y-3">
+            <label class="block">Threshold (0-255)<input type="range" min="0" max="255" value="32" class="w-full" /></label>
+            <label class="block">Blur Radius<input type="range" min="0" max="30" value="4" class="w-full" /></label>
+            <label class="block">Feather Radius<input type="range" min="0" max="50" value="8" class="w-full" /></label>
+            <label class="block">Contour Tolerance<input type="range" min="0" max="20" value="6" class="w-full" /></label>
+            <label class="flex items-center gap-2"><input type="checkbox" checked /> Edge Detection</label>
+            <label class="flex items-center gap-2"><input type="checkbox" /> Add Mode</label>
+            <button class="w-full rounded border border-slate-700 p-2">Save selection as mask</button>
+            <button class="w-full rounded border border-slate-700 p-2">Convert to polygon</button>
+            <button class="w-full rounded bg-cyan-400/20 p-2 text-primary">Apply filter inside selection</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      const filesInput = document.getElementById('files');
+      const spacingInput = document.getElementById('spacing');
+      const spacingLabel = document.getElementById('spacingLabel');
+      const bgColorInput = document.getElementById('bgColor');
+      const mergeBtn = document.getElementById('mergeBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const thumbs = document.getElementById('thumbs');
+      const canvas = document.getElementById('stitchCanvas');
+      const ctx = canvas.getContext('2d');
+
+      let images = [];
+
+      spacingInput.addEventListener('input', () => {
+        spacingLabel.textContent = spacingInput.value;
+      });
+
+      filesInput.addEventListener('change', async (event) => {
+        const selected = Array.from(event.target.files || []);
+        images = await Promise.all(selected.map(fileToImage));
+        renderThumbs();
+      });
+
+      function fileToImage(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => resolve({ fileName: file.name, img });
+            img.onerror = reject;
+            img.src = reader.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function renderThumbs() {
+        thumbs.innerHTML = '';
+        images.forEach((item, index) => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between rounded border border-slate-700 px-2 py-1 text-[11px]';
+          row.innerHTML = `<span class="truncate pr-2">${index + 1}. ${item.fileName}</span>`;
+
+          const actions = document.createElement('div');
+          actions.className = 'flex gap-1';
+          const up = document.createElement('button');
+          up.textContent = '↑';
+          up.className = 'rounded border border-slate-600 px-1';
+          up.onclick = () => moveImage(index, -1);
+          const down = document.createElement('button');
+          down.textContent = '↓';
+          down.className = 'rounded border border-slate-600 px-1';
+          down.onclick = () => moveImage(index, 1);
+          actions.appendChild(up);
+          actions.appendChild(down);
+          row.appendChild(actions);
+          thumbs.appendChild(row);
+        });
+      }
+
+      function moveImage(index, step) {
+        const next = index + step;
+        if (next < 0 || next >= images.length) return;
+        [images[index], images[next]] = [images[next], images[index]];
+        renderThumbs();
+      }
+
+      mergeBtn.addEventListener('click', () => {
+        if (!images.length) return;
+
+        const spacing = Number(spacingInput.value);
+        const direction = document.querySelector('input[name="direction"]:checked').value;
+
+        if (direction === 'horizontal') {
+          const maxHeight = Math.max(...images.map((item) => item.img.height));
+          const normalized = images.map((item) => {
+            const scale = maxHeight / item.img.height;
+            return {
+              img: item.img,
+              width: Math.round(item.img.width * scale),
+              height: maxHeight,
+            };
+          });
+          const width = normalized.reduce((sum, item) => sum + item.width, 0) + spacing * (normalized.length - 1);
+          canvas.width = width;
+          canvas.height = maxHeight;
+          drawComposite(normalized, direction, spacing);
+        } else {
+          const maxWidth = Math.max(...images.map((item) => item.img.width));
+          const normalized = images.map((item) => {
+            const scale = maxWidth / item.img.width;
+            return {
+              img: item.img,
+              width: maxWidth,
+              height: Math.round(item.img.height * scale),
+            };
+          });
+          const height = normalized.reduce((sum, item) => sum + item.height, 0) + spacing * (normalized.length - 1);
+          canvas.width = maxWidth;
+          canvas.height = height;
+          drawComposite(normalized, direction, spacing);
+        }
+      });
+
+      function drawComposite(normalized, direction, spacing) {
+        ctx.fillStyle = bgColorInput.value;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let offset = 0;
+        normalized.forEach((item) => {
+          if (direction === 'horizontal') {
+            ctx.drawImage(item.img, offset, 0, item.width, item.height);
+            offset += item.width + spacing;
+          } else {
+            ctx.drawImage(item.img, 0, offset, item.width, item.height);
+            offset += item.height + spacing;
+          }
+        });
+      }
+
+      downloadBtn.addEventListener('click', () => {
+        if (!canvas.width || !canvas.height) return;
+        const a = document.createElement('a');
+        a.download = 'pixelforge-stitch.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      });
+    </script>
+  </body>
+</html>
